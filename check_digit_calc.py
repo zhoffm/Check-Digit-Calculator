@@ -1,4 +1,5 @@
 from random import randint
+import pandas as pd
 
 
 def random_11_digit_upc():
@@ -9,7 +10,7 @@ def random_11_digit_upc():
 # Class to calculate the check digit for 11 digit UPC's
 
 
-class UniversalProductCodeConverter:
+class CheckDigitCalculations:
     def __init__(self):
         self.input_string = None
         self.input_integer = None
@@ -57,19 +58,40 @@ class UniversalProductCodeConverter:
             self.check_digit = 10 - self.m
 
     # Do all the steps. This runs all the previous steps.
-    def convert_upc(self, input_upc):
+    def compute_check_digit(self, input_upc):
         self.input_string = input_upc
-        self.step_1()
-        self.step_2()
-        self.step_2()
-        self.step_3()
-        self.step_4()
-        self.step_5()
-        return self.check_digit
+        if self.len_check():
+            self.step_1()
+            self.step_2()
+            self.step_2()
+            self.step_3()
+            self.step_4()
+            self.step_5()
+            return self.check_digit
+        else:
+            return ''
+
+
+class RawUniversalProductCodeConditioning(CheckDigitCalculations):
+    def __init__(self):
+        super().__init__()
+        self.input_file_path = None
+        self.input_file = None
+        self.upc_df = pd.DataFrame()
+
+    def read_file_into_df(self, input_file_path, input_file):
+        self.input_file_path = input_file_path
+        self.input_file = input_file
+        self.upc_df = pd.read_csv(self.input_file_path + self.input_file, dtype={'REFCODE': str}, na_filter=False)
+
+    def add_updated_upc_to_df(self):
+        pass
+
+
 
 
 if __name__ == '__main__':
     test_upc = random_11_digit_upc()
-    obj = UniversalProductCodeConverter()
-    obj.convert_upc(test_upc)
+    obj = CheckDigitCalculations()
+    obj.compute_check_digit(test_upc)
     print(obj.check_digit)

@@ -1,7 +1,7 @@
 from unittest import TestCase
-from check_digit_calc import UniversalProductCodeConverter
+from check_digit_calc import CheckDigitCalculations
 
-test_obj = UniversalProductCodeConverter()
+test_obj = CheckDigitCalculations()
 
 test_obj.input_string = '12345678901'
 
