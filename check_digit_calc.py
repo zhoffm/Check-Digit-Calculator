@@ -57,7 +57,7 @@ class CheckDigitCalculations:
         else:
             self.check_digit = 10 - self.m
 
-    # Do all the steps. This runs all the previous steps.
+    # Do all the steps! This runs all the previous steps.
     def compute_check_digit(self, input_upc):
         self.input_string = input_upc
         if self.len_check():
@@ -71,27 +71,44 @@ class CheckDigitCalculations:
         else:
             return ''
 
+    def get_full_upc(self, input_upc):
+        self.input_string = input_upc
+        return self.input_string + str(self.compute_check_digit(input_upc))
 
-class RawUniversalProductCodeConditioning(CheckDigitCalculations):
+
+class RawCSVProcessing(CheckDigitCalculations):
     def __init__(self):
         super().__init__()
         self.input_file_path = None
         self.input_file = None
+        self.output_file_path = None
+        self.output_file = None
+        self.upc_col = 'REFCODE'
         self.upc_df = pd.DataFrame()
+        self.upc_list = None
+        self.updated_upcs = None
 
     def read_file_into_df(self, input_file_path, input_file):
         self.input_file_path = input_file_path
         self.input_file = input_file
-        self.upc_df = pd.read_csv(self.input_file_path + self.input_file, dtype={'REFCODE': str}, na_filter=False)
+        self.upc_df = pd.read_csv(
+            self.input_file_path + self.input_file,
+            dtype={self.upc_col: str}, na_filter=False,
+            usecols=['DESCRIPT', 'REFCODE']
+        )
 
     def add_updated_upc_to_df(self):
-        pass
+        self.upc_list = list(self.upc_df[self.upc_col])
+        self.updated_upcs = [(x + str(self.compute_check_digit(x))) for x in self.upc_list]
+        self.upc_df[self.upc_col] = self.updated_upcs
 
-
+    def write_upcs_to_csv(self, output_file_path, output_file):
+        self.output_file_path = output_file_path
+        self.output_file = output_file
+        self.upc_df.to_csv(self.output_file_path + self.output_file, index=False)
 
 
 if __name__ == '__main__':
     test_upc = random_11_digit_upc()
     obj = CheckDigitCalculations()
-    obj.compute_check_digit(test_upc)
-    print(obj.check_digit)
+    print(obj.get_full_upc(test_upc))
